@@ -40,11 +40,9 @@ import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
 
 import static com.aperto.magnolia.vanity.app.LinkConverter.isExternalLink;
-import static com.aperto.magnolia.vanity.app.VanityUrlSaveFormAction.IMAGE_EXTENSION;
 import static info.magnolia.cms.util.RequestDispatchUtil.REDIRECT_PREFIX;
 import static info.magnolia.jcr.util.PropertyUtil.getString;
 import static info.magnolia.jcr.util.SessionUtil.getNodeByIdentifier;
-import static info.magnolia.link.LinkUtil.DEFAULT_EXTENSION;
 import static info.magnolia.repository.RepositoryConstants.WEBSITE;
 import static javax.jcr.query.Query.JCR_SQL2;
 import static org.apache.commons.lang.StringUtils.*;
@@ -74,7 +72,6 @@ public class VanityUrlService {
 
     /**
      * Creates the redirect url for uri mapping.
-     * Without context path, because of Magnolia's {@link info.magnolia.cms.util.RequestDispatchUtil}.
      *
      * @param node vanity url node
      * @return redirect url
@@ -111,7 +108,6 @@ public class VanityUrlService {
 
     /**
      * Creates the preview url for app preview.
-     * Without contextPath, because of Magnolia's app framework.
      *
      * @param node vanity url node
      * @return preview url
@@ -145,9 +141,8 @@ public class VanityUrlService {
         String link = EMPTY;
         try {
             if (node != null && node.hasNode(NN_IMAGE)) {
-                link = getLinkFromNode(node.getNode(NN_IMAGE));
+                link = LinkUtil.createLink(node.getNode(NN_IMAGE));
                 link = removeStart(defaultString(link), _contextPath);
-                link = replace(link, "." + DEFAULT_EXTENSION, IMAGE_EXTENSION);
             }
         } catch (RepositoryException e) {
             LOGGER.error("Error creating link to image property.", e);
@@ -188,13 +183,6 @@ public class VanityUrlService {
      */
     protected String getLinkFromId(final String url) {
         return LinkUtil.createLink(getNodeByIdentifier(WEBSITE, url));
-    }
-
-    /**
-     * Override for testing.
-     */
-    protected String getLinkFromNode(final Node node) {
-        return LinkUtil.createLink(node);
     }
 
     @Inject
